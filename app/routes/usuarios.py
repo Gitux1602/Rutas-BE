@@ -67,31 +67,6 @@ def crear_usuario():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-
-
-@usuarios_bp.route('/login', methods=['POST'])
-def login():
-    datos = request.get_json()
-
-    correo = datos.get('correo')
-    contrasena = datos.get('contrasena')
-
-    if not correo or not contrasena:
-        return jsonify({'error': 'Correo y contraseña requeridos'}), 400
-
-    usuario = Usuario.query.filter_by(correo=correo).first()
-
-    if not usuario or not check_password_hash(usuario.contrasena_hash, contrasena):
-        return jsonify({'error': 'Credenciales inválidas'}), 401
-
-    token = create_access_token(identity=str(usuario.id_usuario),additional_claims={"rol": usuario.rol.name,"almacen_codigo": usuario.almacen_codigo})
-
-    return jsonify({
-        'access_token': token,
-        'usuario': usuario.to_dict()
-    }), 200
-
-
 @usuarios_bp.route('/cambiar-contrasena', methods=['POST'])
 def cambiar_contrasena():
     datos = request.get_json()
@@ -283,3 +258,29 @@ def obtener_usuario(id_usuario):
         return jsonify({'error': 'No tienes permisos para ver esta información'}), 403
 
     return jsonify(usuario_buscado.to_dict()), 200
+
+@usuarios_bp.route('/login', methods=['POST'])
+def login():
+    datos = request.get_json()
+
+    correo = datos.get('correo')
+    contrasena = datos.get('contrasena')
+
+    if not correo or not contrasena:
+        return jsonify({'error': 'Correo y contraseña requeridos'}), 400
+
+    usuario = Usuario.query.filter_by(correo=correo).first()
+
+    if not usuario or not check_password_hash(usuario.contrasena_hash, contrasena):
+        return jsonify({'error': 'Credenciales inválidas'}), 401
+
+    token = create_access_token(identity=str(usuario.id_usuario),additional_claims={"rol": usuario.rol.name,"almacen_codigo": usuario.almacen_codigo})
+
+    return jsonify({
+        'access_token': token,
+        'usuario': usuario.to_dict()
+    }), 200
+
+@usuarios_bp.route('/logout', methods=['POST'])
+def logout():
+    return jsonify({'msg': 'Sesión cerrada exitosamente'}), 200
