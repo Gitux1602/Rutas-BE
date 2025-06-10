@@ -1,0 +1,17 @@
+# Archivos específicos a ignorar
+.env
+
+# Entornos virtuales de Python
+venv/
+env/
+
+# Archivos de compilación de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Otros archivos comunes a ignorar
+*.log
+*.pot
+*.pyc
+.DS_Store
