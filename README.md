@@ -18,6 +18,4 @@ Sistema integral para administrar rutas de entrega entre almacenes con autentica
 Flask | MySQL | SAP HANA Connector | JWT Auth
 
 # 🚀 Instalación
-git clone https://github.com/Gitux1602/Rutas-BE.git
-cd Rutas-BE
-pip install -r requirements.txt
+git clone https://github.com/Gitux1602/Rutas-BE.git         cd Rutas-BE         pip install -r requirements.txt
