@@ -227,7 +227,7 @@ def borrar_usuario(id_usuario):
         return jsonify({'error': str(e)}), 500
     
 
-@usuarios_bp.route('/usuarios', methods=['GET'])
+@usuarios_bp.route('/ver-usuarios', methods=['GET'])
 @jwt_required()
 def obtener_usuarios():
     usuario_actual = get_usuario_actual()
@@ -245,3 +245,41 @@ def obtener_usuarios():
     return jsonify([usuario.to_dict() for usuario in usuarios]), 200
 
 
+@usuarios_bp.route('/ver-usuario/<int:id_usuario>', methods=['GET'])
+@jwt_required()
+def obtener_usuario(id_usuario):
+    """Obtiene los detalles de un usuario específico según permisos del solicitante.
+
+    Permisos requeridos:
+        - ADMIN: Puede ver cualquier usuario
+        - GERENTE: Solo puede ver choferes de su mismo almacén
+        - CHOFER: No tienen acceso
+
+    Parámetros:
+        id_usuario: ID del usuario a consultar
+
+    Returns:
+        Response: JSON con los datos del usuario si tiene permisos
+
+    Errores:
+        401: Si no hay usuario autenticado
+        403: Si no tiene permisos para ver el usuario
+        404: Si el usuario solicitado no existe
+    """
+    usuario_actual = get_usuario_actual()
+    if not usuario_actual:
+        return jsonify({'error': 'Usuario autenticado no encontrado'}), 401
+
+    usuario_buscado = Usuario.query.get(id_usuario)
+    if not usuario_buscado:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+
+    if usuario_actual.rol == RolUsuario.ADMIN:
+        pass 
+    elif usuario_actual.rol == RolUsuario.GERENTE:
+        if usuario_buscado.rol != RolUsuario.CHOFER or usuario_buscado.almacen_codigo != usuario_actual.almacen_codigo:
+            return jsonify({'error': 'No tienes permisos para ver esta información'}), 403
+    else:
+        return jsonify({'error': 'No tienes permisos para ver esta información'}), 403
+
+    return jsonify(usuario_buscado.to_dict()), 200
