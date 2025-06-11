@@ -29,9 +29,11 @@ def create_app():
     from app.routes.sap_documents import sap_documents_bp
     from app.routes.almacenes import almacenes_bp
     from app.routes.usuarios import usuarios_bp
+    from app.routes.unidades import unidades_bp
 
     app.register_blueprint(sap_documents_bp, url_prefix="/api")
     app.register_blueprint(almacenes_bp, url_prefix="/api")
     app.register_blueprint(usuarios_bp, url_prefix="/api")
-
+    app.register_blueprint(unidades_bp, url_prefix="/api")
+    
     return app
