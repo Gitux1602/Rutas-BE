@@ -213,7 +213,8 @@ def obtener_usuarios():
     if usuario_actual.rol == RolUsuario.ADMIN:
         usuarios = Usuario.query.all()
     elif usuario_actual.rol == RolUsuario.GERENTE:
-        usuarios = Usuario.query.filter_by(almacen_codigo=usuario_actual.almacen_codigo).all()
+        #usuarios = Usuario.query.filter_by(almacen_codigo=usuario_actual.almacen_codigo).all()
+        usuarios = Usuario.query.filter(Usuario.almacen_codigo == usuario_actual.almacen_codigo,  Usuario.rol == RolUsuario.CHOFER).all()
     else:
         return jsonify({'error': 'No tienes permisos para ver esta información'}), 403
 
