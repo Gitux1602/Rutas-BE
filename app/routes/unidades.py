@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from app.models.unidades import Unidad
 from app.models.usuarios import Usuario, RolUsuario
 from app import db
-from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required
 
 from app.utils.jwt_helpers import get_usuario_actual
@@ -58,3 +57,25 @@ def crear_unidad():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@unidades_bp.route('/unidades', methods=['GET'])
+@jwt_required()
+def obtener_unidades():
+    usuario_actual = get_usuario_actual()
+
+    if not usuario_actual:
+        return jsonify({'error': 'Usuario autenticado no encontrado'}), 401
+
+    almacen_filtro = request.args.get('almacen_codigo')
+
+    if usuario_actual.rol == RolUsuario.ADMIN:
+        if almacen_filtro:
+            unidades = Unidad.query.filter_by(almacen_codigo=almacen_filtro).all()
+        else:
+            unidades = Unidad.query.all()
+    elif usuario_actual.rol == RolUsuario.GERENTE:
+        unidades = Unidad.query.filter_by(almacen_codigo=usuario_actual.almacen_codigo).all()
+    else:
+        return jsonify({'error': 'No tienes permisos para ver esta información'}), 403
+
+    return jsonify([unidad.to_dict() for unidad in unidades]), 200
