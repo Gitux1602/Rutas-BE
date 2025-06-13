@@ -257,3 +257,4 @@ def actualizar_unidad(id_unidad):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
