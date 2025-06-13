@@ -199,8 +199,7 @@ def borrar_usuario(id_usuario):
         return jsonify({'success': 'Usuario eliminado correctamente'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-    
+        return jsonify({'error': str(e)}), 500  
 
 @usuarios_bp.route('/ver-usuarios', methods=['GET'])
 @jwt_required()

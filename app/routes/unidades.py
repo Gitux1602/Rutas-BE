@@ -223,3 +223,37 @@ def asignar_chofer(id_unidad):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Error en la base de datos', 'detalle': str(e)}), 500
+    
+
+@unidades_bp.route('/unidades/<int:id_unidad>', methods=['PUT'])
+@jwt_required()
+def actualizar_unidad(id_unidad):
+    datos = request.get_json()
+    usuario_actual = get_usuario_actual()
+
+    if not usuario_actual:
+        return jsonify({'error': 'Usuario autenticado no encontrado'}), 401
+
+    unidad = Unidad.query.get(id_unidad)
+    if not unidad:
+        return jsonify({'error': 'Unidad no encontrada'}), 404
+
+    if usuario_actual.rol == RolUsuario.GERENTE:
+        if unidad.almacen_codigo != usuario_actual.almacen_codigo:
+            return jsonify({'error': 'No puedes modificar unidades de otra sucursal'}), 403
+    elif usuario_actual.rol != RolUsuario.ADMIN:
+        return jsonify({'error': 'No tienes permisos para modificar unidades'}), 403
+
+    if 'nombre' in datos:
+        unidad.nombre = datos['nombre']
+    if 'placas' in datos:
+        unidad.placas = datos['placas']
+    if 'descripcion' in datos:
+        unidad.descripcion = datos['descripcion']
+
+    try:
+        db.session.commit()
+        return jsonify(unidad.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
